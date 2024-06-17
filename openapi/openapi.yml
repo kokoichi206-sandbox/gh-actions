@@ -1,0 +1,366 @@
+openapi: 3.0.0
+info:
+  version: 0.1.0
+  title: SNS-app API
+  description: |
+    SNS サービスの API 仕様書です。
+
+servers:
+  - url: "http://localhost:9876"
+    description: 開発環境
+
+security:
+  - cookieAuth: []
+
+paths:
+  /health:
+    get:
+      summary: ヘルスチェック用エンドポイント。
+      operationId: healthCheck
+      security: []    # no authentication
+      responses:
+        '200':
+          description: サーバーの状態を返す。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /login:
+    post:
+      summary: ログイン処理。
+      operationId: postLogin
+      tags:
+        - Users
+      security: []    # no authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 成功時、Cookie にセッション ID を設定する。
+          headers: 
+            Set-Cookie:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /logout:
+    post:
+      summary: ログアウト処理。
+      operationId: postLogout
+      tags:
+        - Users
+      security: []    # no authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '204':
+          description: 成功時 Cookie のセッション情報を削除する。
+          headers: 
+            Set-Cookie:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /me:
+    get:
+      summary: セッションをもとにログインしているユーザーの情報を取得する。
+      operationId: getMe
+      tags:
+        - Users
+      responses:
+        '200':
+          description: 成功時、Cookie にセッション ID を設定する。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users:
+    get:
+      summary: フォローするためのユーザー一覧を取得する。
+      tags:
+        - Users
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: string
+            description: |
+              TODO: 認証の内容からユーザー ID を取得するようにし、query (や path) からは削除する。
+      responses:
+        '200':
+          description: ユーザー一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
+              example:
+                $ref: './examples/get-users.json'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /follows:
+    post:
+      summary: ユーザーをフォローする。
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FollowUserRequest'
+            example:
+              $ref: './examples/post-follows-request.json'
+      responses:
+        '201':
+          description: User followed successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /tweets:
+    post:
+      summary: 新規ツイートを投稿する。
+      tags:
+        - Tweets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostTweetRequest'
+            example:
+              $ref: './examples/post-tweet-request.json'
+      responses:
+        '201':
+          description: Tweet posted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /timeline:
+    get:
+      summary: ユーザーのタイムライン用の情報を取得する。
+      tags:
+        - Tweets
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: string
+            description: |
+              TODO: 認証の内容からユーザー ID を取得するようにし、query (や path) からは削除する。
+      responses:
+        '200':
+          description: タイムラインに表示する情報一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Timeline'
+              example:
+                $ref: './examples/get-timeline.json'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sns-app-session
+
+  responses:
+    BadRequest:
+      description: 不正なリクエスト。
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: 認証エラー。
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalServerError:
+      description: インターナルサーバーエラー。
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: Firebase Auth API から受け取った ID トークン。
+    PostTweetRequest:
+      type: object
+      required:
+        - body
+      properties:
+        body:
+          type: string
+          description: ツイートの本文。文字数は 140 文字まで。
+    FollowUserRequest:
+      type: object
+      required:
+        - followed_id
+      properties:
+        followed_id:
+          type: string
+          description: フォローされるユーザーの ID。
+
+    HealthResult:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          description: サーバーの状態。
+      example:
+        status: "OK"
+
+    Me:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          description: ユーザーの ID。
+        name:
+          type: string
+          description: ユーザー名。
+        provider:
+          type: string
+          description: どのプロバイダーでログインしているか。
+
+    Users:
+      type: object
+      required:
+        - users
+      properties:
+        users:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/User'
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - is_follower
+      properties:
+        id:
+          type: string
+          description: ユーザーの ID。
+        name:
+          type: string
+          description: ユーザー名。
+        is_follower:
+          type: boolean
+          description: ログインユーザーがフォローしているかどうか。
+
+    Timeline:
+      type: object
+      required:
+        - tweet
+      properties:
+        tweets:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Tweet'
+    Tweet:
+      type: object
+      required:
+        - id
+        - user_id
+        - user_name
+        - body
+        - timestamp
+      properties:
+        id:
+          type: string
+          description: ツイートの ID。
+        user_id:
+          type: string
+          description: ツイートしたユーザーの ID。
+        user_name:
+          type: string
+          description: ツイートしたユーザーの名前。
+        body:
+          type: string
+          description: ツイートの本文。
+        timestamp:
+          type: string
+          format: int64
+          description: ツイートした日時(ナノ秒タイムスタンプ)。
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string

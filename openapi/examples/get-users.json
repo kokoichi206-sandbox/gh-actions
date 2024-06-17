@@ -1,0 +1,14 @@
+{
+    "users": [
+        {
+            "id": "b3493c7d-71be-48d0-918d-465788dd4cec",
+            "name": "John Doe",
+            "is_follower": false
+        },
+        {
+            "id": "bffe2bf6-7c0f-4fd3-ab84-f9299738d279",
+            "name": "名無しの権兵衛",
+            "is_follower": true
+        }
+    ]
+}

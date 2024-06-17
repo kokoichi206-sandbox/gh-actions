@@ -1,0 +1,22 @@
+{
+    "tweets": [
+        {
+            "id": "9747be01-cc1b-4e2b-824c-dcad1b7a70c7",
+            "user_id": "55a980aa-f5bb-4ae5-aa9f-572d56a8a0a7",
+            "body": "I'm a tweet!",
+            "timestamp": "1706888873152334145"
+        },
+        {
+            "id": "f3e3e3e3-cc1b-4e2b-824c-dcad1b7a70c7",
+            "user_id": "55a980aa-f5bb-4ae5-aa9f-572d56a8a0a7",
+            "body": "I'm another tweet!",
+            "timestamp": "1706888873124334145"
+        },
+        {
+            "id": "f3e3e3e3-cc1b-4e2b-824c-dcad1b7a70c7",
+            "user_id": "55a980aa-f5bb-4ae5-aa9f-572d56a8a0a7",
+            "body": "I'm another tweet!",
+            "timestamp": "1706888872124334110"
+        }
+    ]
+}
