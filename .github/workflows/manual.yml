@@ -31,7 +31,7 @@ jobs:
           echo "${{ env.BRANCH }}"
 
       - name: Func
-        run: prinenv | grep '_FUNC'
+        run: printenv | grep '_FUNC'
         env:
           CONTAINS_FUNC: ${{ contains('Hello', 'ell') }}
           STARTS_WITH_FUNC: ${{ startsWith('Hello', 'Hel') }}
@@ -50,4 +50,6 @@ jobs:
       - name: PR comment
         run: |
           # gh があらかじめインストールされている。
-          gh pr comment "${GITHUB_HEAD_REF}" --body "Hello, ${GITHUB_ACTOR!"
+          gh pr comment "${GITHUB_HEAD_REF}" --body "Hello, ${GITHUB_ACTOR}!"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
