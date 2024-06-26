@@ -8,6 +8,7 @@ on:
         description: 'Greeting message'
         required: true
         default: 'Hello, World!'
+  pull_request:
 
 jobs:
   run:
@@ -15,3 +16,38 @@ jobs:
     steps:
       - name: Say hello
         run: echo "${{ github.event.inputs.greeting }}"
+
+      - name: User Context
+        run: |
+          # github: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+          echo "${{ github.actor }} triggered by ${{ github.event }} on ${{ github.repository }}"
+
+          # runner: https://docs.github.com/en/actions/learn-github-actions/contexts#runner-context
+          echo "${{ runner }}"
+          echo "${{ runner.os }}, ${{ runner.arch }}"
+
+      - name: Env
+        run: |
+          echo "${{ env.BRANCH }}"
+
+      - name: Func
+        run: prinenv | grep '_FUNC'
+        env:
+          CONTAINS_FUNC: ${{ contains('Hello', 'ell') }}
+          STARTS_WITH_FUNC: ${{ startsWith('Hello', 'Hel') }}
+          ENDS_WITH_FUNC: ${{ endsWith('Hello', 'llo') }}
+
+
+  comment:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: PR comment
+        run: |
+          # gh があらかじめインストールされている。
+          gh pr comment "${GITHUB_HEAD_REF}" --body "Hello, ${GITHUB_ACTOR!"
