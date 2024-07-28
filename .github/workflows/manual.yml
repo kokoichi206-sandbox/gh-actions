@@ -1,5 +1,5 @@
 name: Manual Action
-
+run-name: Run by @${{ github.actor }}
 on:
   workflow_dispatch:
     inputs:
@@ -13,6 +13,9 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+    env:
+      # 中間環境変数。
+      ACTOR: ${{ github.actor }}
     steps:
       - name: Say hello
         run: echo "${{ github.event.inputs.greeting }}"
@@ -28,14 +31,40 @@ jobs:
 
       - name: Env
         run: |
+          # context
           echo "${{ env.BRANCH }}"
+          # environment
+          echo "${GITHUB_ACTOR}"
+
+      - name: Intermediate Env
+        run: |
+          echo "${ACTOR}"
 
       - name: Func
         run: printenv | grep '_FUNC'
         env:
+          # https://docs.github.com/ja/actions/learn-github-actions/expressions#functions
           CONTAINS_FUNC: ${{ contains('Hello', 'ell') }}
           STARTS_WITH_FUNC: ${{ startsWith('Hello', 'Hel') }}
           ENDS_WITH_FUNC: ${{ endsWith('Hello', 'llo') }}
+
+      - name: Secret
+        run: |
+          echo "${{ secrets.TOP_TOP_SECRET }}"
+          echo "${{ secrets.TOP_TOP_SECRET }}" | grep PI
+
+      - name: Literals
+        run: |
+          printenv | grep '_LITERAL'
+        env:
+          # Shell にはない概念としてリテラルがある。
+          LITERAL_NULL: ${{ null }}
+          LITERAL_BOOLEAN: ${{ true }}
+          LITERAL_NUMBER: ${{ 42 }}
+          LITERAL_STRING: ${{ 'Hello, World!' }}
+          # string 型には省略がある！
+          # https://docs.github.com/ja/actions/learn-github-actions/expressions#literals
+          LITERAL_OMIT_STRING: 'Hello, World!'
 
 
   comment:

@@ -10,4 +10,4 @@
 
 - 種類
   - github, job, runner, matrix, env, jobs, secrets, needs, vars, steps, strategy, inputs
-- 
+- https://docs.github.com/ja/actions/learn-github-actions/contexts
